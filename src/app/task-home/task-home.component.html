@@ -1,0 +1,187 @@
+<div class="navbar-con">
+  <nav class="navbar bg-warning ">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold">
+        TaskApp
+      </a>
+      <button class=" btn btn-success" data-bs-target="#taskForm" data-bs-toggle="modal" (click)="clickAddTask()"> Add a
+        Task</button>
+    </div>
+  </nav>
+</div>
+
+
+<div class="table-con">
+  <table class="table  table-hover " style="width: 90%; border: 1px solid gray;">
+
+    <thead class="bg-info text-light">
+      <tr>
+        <th>SrNo</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Status</th>
+        <th>Priority</th>
+        <th>Suggested Solution</th>
+        <th>Risk id</th>
+        <th>Assigned Date</th>
+        <th>Closing Date</th>
+        <th>Owner</th>
+        <th>Assignee</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <div class="loader" *ngIf="loading"><app-loader></app-loader></div>
+    <tbody class="fs-6" *ngIf="!loading">
+      <tr *ngFor="let task of tasks, let i=index">
+        <td>
+          {{i+1}}
+        </td>
+        <td>
+          {{task.name}}
+        </td>
+        <td>
+          {{task.description}}
+        </td>
+        <td class="fw-bold" [ngClass]="task.status?'text-success':'text-danger'">
+          {{task.status}}
+        </td>
+        <td>
+          {{task.priority}}
+        </td>
+        <td>
+          {{task.suggested_solution}}
+        </td>
+        <td>
+          {{task.risk_id ? task.risk_id:'-'}}
+        </td>
+        <td>
+          {{task.assigned_date | date :' dd/MM/yy'}}
+        </td>
+        <td>
+          {{task.closing_date | date :' dd/MM/yy'}}
+        </td>
+        <td>
+          {{task.owner ? task.owner:'-'}}
+        </td>
+        <td *ngFor="let assign of task.assignee">
+          {{task.assignee}}
+        </td>
+        <td> <button class="btn btn-info btn-sm" data-bs-target="#taskForm" data-bs-toggle="modal"
+            (click)="onEditclick(task.id)" style="width: 58px;"> Edit</button>
+          <button class="btn btn-danger btn-sm mt-2" (click)="deleteTaskDetail(task.id)"> Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- /*Form*/ -->
+<div class="modal fade" id="taskForm" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered justify-content-center">
+    <div class="modal-content" style="width: 80vw;">
+      <div class="modal-body" style="width: 80vw;">
+        <div class="header-con d-flex justify-content-between">
+          <h1 class="modal-title fs-5" id="exampleModalToggleLabel">Add Task</h1>
+          <button type="button" id="close_Modal" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form [formGroup]="addTaskForm" (ngSubmit)="postTaskToDB()" class="form-group">
+          <div class="row">
+            <div class="col-6">
+              <div class="my-1">
+                <label for="name"> Task Name</label>
+                <input class='form-control' type="text" id="name" formControlName="name">
+                <div class="d-block invalid-feedback"
+                  *ngIf="addTaskForm.get('name')?.touched && addTaskForm.get('name')?.errors?.['required']">*This field
+                  is mandatory</div>
+              </div>
+              <div class="my-1">
+                <label class="form-label" for="description"> Task Description</label>
+                <input class='form-control' type="text" id="description" formControlName="description">
+                <div class="d-block invalid-feedback"
+                  *ngIf="addTaskForm.get('description')?.touched && addTaskForm.get('description')?.errors?.['required']">
+                  *This field is mandatory</div>
+              </div>
+              <div class="my-1">
+                <label for="status">Status</label>
+                <select class="form-control" name="status" id="status" formControlName="status">
+                  <option value="true">Active</option>
+                  <option value="false">Not Active</option>
+                </select>
+                <div class="d-block invalid-feedback"
+                  *ngIf="addTaskForm.get('status')?.touched && addTaskForm.get('status')?.errors?.['required']">*This
+                  field is mandatory</div>
+              </div>
+              <div class="my-1">
+                <label for="priority">Priority</label>
+                <input class='form-control' type="text" name="priority" id="priority" formControlName="priority">
+                <div class="d-block invalid-feedback"
+                  *ngIf="addTaskForm.get('priority')?.touched && addTaskForm.get('priority')?.errors?.['required']">
+                  *This field is mandatory</div>
+              </div>
+              <div class="my-1">
+                <label for="risk_id">Risk Id</label>
+                <input class='form-control' type="risk_id" name="risk_id" id="risk_id" formControlName="risk_id">
+                <div class="d-block invalid-feedback"
+                  *ngIf="addTaskForm.get('risk_id')?.touched && addTaskForm.get('risk_id')?.errors?.['required']">*This
+                  field is mandatory</div>
+              </div>
+
+            </div>
+            <div class="col-6">
+
+              <div class="my-1">
+                <label for="suggested_solution">Suggested Solution</label>
+                <input class='form-control' type="text" name="suggested_solution" id="suggested_solution"
+                  formControlName="suggested_solution">
+                <div class="d-block invalid-feedback"
+                  *ngIf="addTaskForm.get('suggested_solution')?.touched && addTaskForm.get('suggested_solution')?.errors?.['required']">
+                  *This field is mandatory</div>
+              </div>
+              <div class="my-1">
+                <label for="assigned_date">Assigned Date</label>
+                <input class='form-control' type="date" name="assigned_date" id="assigned_date"
+                  formControlName="assigned_date">
+                <div class="d-block invalid-feedback"
+                  *ngIf="addTaskForm.get('assigned_date')?.touched && addTaskForm.get('assigned_date')?.errors?.['required']">
+                  *This field is mandatory</div>
+              </div>
+              <div class="my-1">
+                <label for="closing_date">Closing Date</label>
+                <input class='form-control' type="date" name="closing_date" id="closing_date"
+                  formControlName="closing_date">
+                <div class="d-block invalid-feedback"
+                  *ngIf="addTaskForm.get('closing_date')?.touched && addTaskForm.get('closing_date')?.errors?.['required']">
+                  *This field is mandatory</div>
+              </div>
+              <div class="my-1">
+                <label for="owner">Owner</label>
+                <input class='form-control' type="text" name="owner" id="owner" formControlName="owner">
+                <div class="d-block invalid-feedback"
+                  *ngIf="addTaskForm.get('owner')?.touched && addTaskForm.get('owner')?.errors?.['required']">*This
+                  field is mandatory</div>
+              </div>
+              <!-- <div class="my-1" formArrayName="assignee"> -->
+              <!-- <div *ngFor="let assigneeNum of assignee().controls;let ai=index"> -->
+
+              <label for="assignee">Assignee</label>
+              <input class='form-control' type="text" name="assignee" id="assignee" formControlName="assignee">
+            </div>
+            <!-- </div> -->
+            <!-- </div> -->
+          </div>
+
+
+
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancel">Close</button>
+            <button type="submit" *ngIf="showAdd" class="btn btn-primary" [disabled]="addTaskForm.invalid">Save</button>
+            <button type="button" *ngIf="showUpdate" (click)="updateTaskDetails()" class="btn btn-primary"
+              [disabled]="addTaskForm.invalid">Update</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
